@@ -8,7 +8,8 @@
 
 	*   Candy.
 	*   Gum.
-	*   Booze.
+	*   Booze. might
+	    be 2 lines
 
 	> This is a blockquote. No markdown allowed inside
 	>
@@ -30,19 +31,36 @@ file:	'\n'* elem+ EOF ;
 elem:	header
 	|	para
 	|	quote
+	|	list
 	|	'\n'
 	;
 
 header : '#'+ ~'\n'* '\n' ;
 
-para:	'\n'* (text|bold|italics|link|'\n')+? '\n' '\n'* ; // if \n\n, exists loop. if \n not \n, stays in loop.
+para:	'\n'* paraContent '\n' nl ; // if \n\n, exists loop. if \n not \n, stays in loop.
+
+paraContent : (text|bold|italics|link|astericks|underscore|{_input.LA(2)!='\n'}? '\n')+ ;
 
 bold:	'*' text '*' ;
+
+astericks : ws '*' ws ;
+
+underscore : ws '_' ws ;
 
 italics : '_' text '_' ;
 
 link : '[' text ']' '(' ~')'* ')' ;
 
-quote : '>' ~'\n'* '\n' ;
+quote : quoteElem+ nl ;
+
+quoteElem : '>' ~'\n'* '\n' ;
+
+list:	listElem+ nl nl ;
+
+listElem : (' ' (' ' ' '?)?)? '*' ws paraContent ;
 
 text:	~('#'|'*'|'>'|'['|'\n')+ ;
+
+ws	:	(' '|'\t')+ ;
+
+nl	:	'\r'? '\n' ;

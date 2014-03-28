@@ -6,6 +6,7 @@ paragraphs are lines of text separated by blank lines. No indent.
 *   Candy.
 *   Gum.
 *   Booze.
+line 2 of elem.
 
 > This is a blockquote. No markdown allowed inside
 >
