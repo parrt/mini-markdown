@@ -25,16 +25,17 @@ parser grammar MarkdownParser;
 
 options {tokenVocab=CharVocab;}
 
-file:	elem+ EOF ;
+file:	'\n'* elem+ EOF ;
 
 elem:	header
 	|	para
 	|	quote
+	|	'\n'
 	;
 
 header : '#'+ ~'\n'* '\n' ;
 
-para:	(text|bold|italics|link|'\n')+ '\n' '\n'+ ;
+para:	'\n'* (text|bold|italics|link|'\n')+? '\n' '\n'* ; // if \n\n, exists loop. if \n not \n, stays in loop.
 
 bold:	'*' text '*' ;
 

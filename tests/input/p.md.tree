@@ -1,0 +1,1 @@
+(file (elem (para (text A   s i m p l e   p a r a   w / o   s t a r t) \n)) (elem (para (text n e w l i n e   c h a r .) \n \n)) (elem (para (text s i n g l e   l i n e) \n \n \n)) (elem (para (text p a r a   a f t e r   2   l i n e s) \n \n)) <EOF>)
