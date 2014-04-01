@@ -4,10 +4,8 @@ import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.tool.ErrorType;
-import org.stringtemplate.v4.STGroup;
+import org.antlr.v4.runtime.atn.PredictionMode;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -53,6 +51,7 @@ public class Tool {
 		CharsAsTokens charTokens = new CharsAsTokens(chars, MarkdownParser.tokenNames);
 		CommonTokenStream tokens = new CommonTokenStream(charTokens);
 		MarkdownParser parser = new MarkdownParser(tokens);
+		parser.getInterpreter().setPredictionMode(PredictionMode.SLL);
 		ParserRuleContext t = parser.file();
 		if ( showGUI ) t.inspect(Arrays.asList(MarkdownParser.ruleNames));
 		if ( showTree ) System.out.println(t.toStringTree(parser));
