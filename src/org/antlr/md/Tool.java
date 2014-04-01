@@ -2,15 +2,37 @@ package org.antlr.md;
 
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.atn.PredictionMode;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class Tool {
+	public static class VerboseListener extends BaseErrorListener {
+	    @Override
+	    public void syntaxError(Recognizer<?, ?> recognizer,
+	                            Object offendingSymbol,
+	                            int line, int charPositionInLine,
+	                            String msg,
+	                            RecognitionException e)
+	    {
+	        List<String> stack = ((Parser)recognizer).getRuleInvocationStack();
+	        Collections.reverse(stack);
+	        System.err.println("rule stack: "+stack);
+	        System.err.println("line "+line+":"+charPositionInLine+" at "+
+	                           offendingSymbol+": "+msg);
+	    }
+
+	}
+
 	public static enum OptionArgType { NONE, STRING } // NONE implies boolean
 	public static class Option {
 		String fieldName;
@@ -51,7 +73,9 @@ public class Tool {
 		CharsAsTokens charTokens = new CharsAsTokens(chars, MarkdownParser.tokenNames);
 		CommonTokenStream tokens = new CommonTokenStream(charTokens);
 		MarkdownParser parser = new MarkdownParser(tokens);
-		parser.getInterpreter().setPredictionMode(PredictionMode.SLL);
+//		parser.getInterpreter().setPredictionMode(PredictionMode.SLL);
+//		parser.removeErrorListeners(); // remove ConsoleErrorListener
+//		parser.addErrorListener(new VerboseListener()); // add ours
 		ParserRuleContext t = parser.file();
 		if ( showGUI ) t.inspect(Arrays.asList(MarkdownParser.ruleNames));
 		if ( showTree ) System.out.println(t.toStringTree(parser));
