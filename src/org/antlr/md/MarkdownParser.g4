@@ -22,13 +22,15 @@
 */
 parser grammar MarkdownParser;
 
-@header {package org.antlr.md;}
+//@header {package org.antlr.md;}
 
 options {tokenVocab=CharVocab;}
 
 file:	'\n'* elem+ EOF ;
 
-elem:	header
+elem
+@init {System.err.println(_input.LT(1));} //With predicates, it seems debugging the grammar helps where is normally does not.
+	:	header
 	|	para
 	|	quote
 	|	list
@@ -37,29 +39,29 @@ elem:	header
 
 header : '#'+ ~'\n'* '\n' ;
 
-para:	'\n'* paraContent '\n' nl ; // if \n\n, exists loop. if \n not \n, stays in loop.
+para:	'\n'* paraContent '\n' (nl|EOF) ; // if \n\n, exists loop. if \n not \n, stays in loop.
 
-paraContent : (text|bold|italics|link|astericks|underscore|{_input.LA(2)!='\n'}? '\n')+ ;
+paraContent : (text|bold|italics|link|astericks|underscore|{_input.LA(2)!='\n'&&_input.LA(2)!=Token.EOF}? '\n')+ ;
 
-bold:	'*' text '*' ;
+bold:	'*' ~('\n'|' ') text'*' ;
 
-astericks : ws '*' ws ;
+astericks : {_input.LT(1).getCharPositionInLine()!=0}? ws '*' ws ;
 
 underscore : ws '_' ws ;
 
-italics : '_' text '_' ;
+italics : '_' ~('\n'|' ') text '_' ;
 
 link : '[' text ']' '(' ~')'* ')' ;
 
 quote : quoteElem+ nl ;
 
-quoteElem : '>' ~'\n'* '\n' ;
+quoteElem : {_input.LT(1).getCharPositionInLine()==0}? '>' ~'\n'* '\n' ;
 
 list:	listElem+ nl nl ;
 
-listElem : (' ' (' ' ' '?)?)? '*' ws paraContent ;
+listElem : {_input.LT(1).getCharPositionInLine()==0}? (' ' (' ' ' '?)?)? '*' ws paraContent ;
 
-text:	~('#'|'*'|'>'|'['|'\n')+ ;
+text:	~('#'|'*'|'>'|'['|']'|'_'|'\n')+ ;
 
 ws	:	(' '|'\t')+ ;
 

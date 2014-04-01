@@ -4,5 +4,4 @@ newline char.
 single line
 
 
-para after 2 lines
-
+one newline before EOF.

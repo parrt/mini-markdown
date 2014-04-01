@@ -77,8 +77,8 @@ public class CharsAsTokens implements TokenSource {
 			return CharStream.EOF;
 		}
 		input.consume();
+		charPosInLine++;
         if ( c == '\n' ) { charPosInLine = 0; line++; }
-        charPosInLine++;
         return input.LA(1);
     }
 
