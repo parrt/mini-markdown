@@ -16,23 +16,27 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class CharsAsTokens implements TokenSource {
+	public final int UNKNOWN;
+
     CharStream input;
-    String[] tokenNames;
+	Map<String, Integer> tokenTypeMap;
     int line=1;
     int charPosInLine;
-    Map<Integer, Integer> charToTokenType = new LinkedHashMap<Integer, Integer>();
+    Map<Integer, Integer> charToTokenType = new LinkedHashMap<>();
 
-    public CharsAsTokens(CharStream input, String[] tokenNames) {
+    public CharsAsTokens(CharStream input, Map<String, Integer> tokenTypeMap) {
         this.input = input;
-        this.tokenNames = tokenNames;
-        int ttype = 0;
-        for (String tname : tokenNames) {
+        this.tokenTypeMap = tokenTypeMap;
+        int max_ttype = 0;
+        for (String tname : tokenTypeMap.keySet()) {
+			int ttype = tokenTypeMap.get(tname);
             if ( tname!=null && tname.charAt(0)=='\'' ) {
 				int charVal = CharSupport.getCharValueFromGrammarCharLiteral(tname);
 				charToTokenType.put(charVal, ttype);
             }
-            ttype++;
+			max_ttype = Math.max(max_ttype, ttype);
         }
+		UNKNOWN = max_ttype; // past end of real tokens
 //        System.out.println(charToTokenType);
     }
 
@@ -65,7 +69,7 @@ public class CharsAsTokens implements TokenSource {
 		int c = input.LA(1);
         Integer ttypeI = charToTokenType.get(c);
         while ( ttypeI==null && c != CharStream.EOF ) {
-            System.err.println("no token type for char '"+(char)c+"'");
+//            System.err.println("no token type for char '"+(char)c+"'");
             c = consume();
             ttypeI = charToTokenType.get(c);
         }
